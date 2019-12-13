@@ -1,4 +1,4 @@
-package distributedsystems;
+package it.unisa.studenti;
 /**
 Copyright 2017 Universita' degli Studi di Salerno
 
