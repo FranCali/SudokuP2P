@@ -1,5 +1,6 @@
 package de.ad.sudoku;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.stream.Collectors;
  * This class represents a Sudoku Grid consisting of a 9x9 matrix containing nine 3x3 sub-grids of
  * {@link Cell}s.
  */
-public class Grid {
+public class Grid implements Serializable{
 
   private final Cell[][] grid;
 
@@ -230,7 +231,7 @@ public class Grid {
    * This class represents a Cell within a Sudoku {@link Grid}. <br><br> It features a couple of
    * convenient methods.
    */
-  public static class Cell {
+  public static class Cell implements Serializable{
     private int value;
     private Collection<Cell> rowNeighbors;
     private Collection<Cell> columnNeighbors;

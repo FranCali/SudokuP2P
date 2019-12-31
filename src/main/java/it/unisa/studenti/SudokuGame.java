@@ -1,4 +1,7 @@
 package it.unisa.studenti;
+
+import java.io.IOException;
+
 import de.ad.sudoku.Grid;
 /**
 Copyright 2017 Universita' degli Studi di Salerno
@@ -26,7 +29,7 @@ public interface SudokuGame {
 	 * @param _game_name a String, the sudoku game name.
 	 * @return
 	 */
-	public Grid generateNewSudoku(String _game_name);
+	public Grid generateNewSudoku(String _game_name) throws Exception;
 	
 	/**
 	 * Joins in a game.
@@ -35,12 +38,14 @@ public interface SudokuGame {
 	 * @return true if the join success, false otherwise.
 	 */
 	public boolean join(String _game_name, String _nickname);
+
 	/**
 	 * Gets the Sudoku matrix game, with only the number placed by the user.
 	 * @param _game_name a String, the sudoku game name.
 	 * @return the integer matrix of the sudoku game.
 	 */
-	public Integer[][] getSudoku(String _game_name);
+	public Grid getSudoku(String _game_name) throws ClassNotFoundException, IOException;
+	
 	/**
 	 * Places a new solution number in the game.
 	 * @param _game_name a String, the sudoku game name.
