@@ -1,4 +1,5 @@
 package it.unisa.studenti;
+import de.ad.sudoku.Grid;
 /**
 Copyright 2017 Universita' degli Studi di Salerno
 
@@ -25,7 +26,7 @@ public interface SudokuGame {
 	 * @param _game_name a String, the sudoku game name.
 	 * @return
 	 */
-	public Integer[][] generateNewSudoku(String _game_name);
+	public Grid generateNewSudoku(String _game_name);
 	
 	/**
 	 * Joins in a game.
