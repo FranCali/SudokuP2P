@@ -1,16 +1,14 @@
 package it.unisa.studenti;
 
 import de.ad.sudoku.*;
-import de.ad.sudoku.Grid.Cell;
 
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Scanner;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Scanner;
 
 import net.tomp2p.dht.FutureGet;
 import net.tomp2p.dht.PeerBuilderDHT;
@@ -22,10 +20,14 @@ import net.tomp2p.storage.Data;
 
 public class P2PSudoku implements SudokuGame {
 
+    private Grid globalSudoku;
+    private Grid localSudoku;
+
     Generator generator = new Generator();
     Random random = new Random();
 
     final private PeerDHT peer;
+    ArrayList<String> players = new ArrayList<>();
 
 
     public P2PSudoku(int peerId) throws Exception{
@@ -46,7 +48,6 @@ public class P2PSudoku implements SudokuGame {
             System.out.println("Chose difficulty: \n1)Easy \n2)Medium \n3)Hard");
             command = scanner.nextInt();
         }while(command!=1 && command!=2 && command!=3);
-        scanner.close();
         
         switch(command){
             case 1: 
@@ -60,34 +61,71 @@ public class P2PSudoku implements SudokuGame {
                 break;
         }
 
-        this.storeSudoku(gameName, grid);
-
-        return grid;
+        
+        if(this.storeGlobalSudoku(gameName + "_empty", grid)){ //Store the initiated version
+            this.storeGlobalSudoku(gameName, grid);
+            this.localSudoku = grid;
+            return this.localSudoku;
+        } 
+        else{
+            return null;
+        }
     }
 
-    public boolean join(String gameName, String nickname){
+    public boolean join(String gameName, String nickname) throws ClassNotFoundException, IOException{
+        String key = gameName + "_players";
         
+        Grid grid = this.getGlobalSudoku(gameName); 
+
+        if(!grid.isEmptyGrid()) //Sudoku game found
+            peer.put(Number160.createHash(key)).data(new Data(grid)).start().awaitUninterruptibly();
+
         return false;
     }
 
-    public Grid getSudoku(String gameName) throws ClassNotFoundException, IOException{
-        FutureGet futureGet = peer.get(Number160.createHash(gameName)).start();
+
+
+    private ArrayList<String> getGamePlayers(String gameName) throws ClassNotFoundException, IOException{
+        ArrayList<String> players = new ArrayList<>();
+
+        FutureGet futureGet = peer.get(Number160.createHash(gameName + "_players")).start();
         futureGet.awaitUninterruptibly();
         if(futureGet.isSuccess()){
-            Grid grid = Grid.emptyGrid();
             
             try{
-                grid = (Grid) futureGet.dataMap().values().iterator().next().object();
-                return grid;
+                players = (ArrayList<String>) futureGet.dataMap().values().iterator().next().object();
             }catch(NoSuchElementException e){
-                System.out.println("Game not found");
+                System.out.println("Players not found");
+                System.exit(0);
             }
         }
         else{
-            System.out.println("Game not found");
+            System.out.println("Players not found");
+            System.exit(0);
         }
-        return Grid.emptyGrid();
+
+        return players;
     }
+
+    public Grid getGlobalSudoku(String gameName) throws ClassNotFoundException, IOException{
+        Grid grid = Grid.emptyGrid();
+
+        FutureGet futureGet = peer.get(Number160.createHash(gameName)).start();
+        futureGet.awaitUninterruptibly();
+        if(futureGet.isSuccess()){
+            
+            try{
+                grid = (Grid) futureGet.dataMap().values().iterator().next().object();
+            }catch(NoSuchElementException e){
+                System.out.println("Game not found");
+                System.exit(0);
+            }
+        }
+       
+        return grid;
+    }
+
+   
 
     public Integer placeNumber(String gameName, int i, int j, int number){
         int point = 0;
@@ -95,9 +133,32 @@ public class P2PSudoku implements SudokuGame {
         return point;
     }
 
-
-    private void storeSudoku(String gameName, Grid grid) throws IOException{
-        peer.put(Number160.createHash(gameName)).data(new Data(grid)).start().awaitUninterruptibly();
+    private boolean storeGlobalSudoku(String gameName, Grid grid) {
+        try{
+            FutureGet futureGet = peer.get(Number160.createHash(gameName)).start();
+            futureGet.awaitUninterruptibly();
+            if(futureGet.isSuccess() && futureGet.isEmpty()){
+                peer.put(Number160.createHash(gameName)).data(new Data(grid)).start().awaitUninterruptibly();   
+                return true; 
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
+    public void leaveNetwork(){
+        
+    }
+
+    @Override
+    public Grid getSudoku(String gameName) {
+        return this.localSudoku;
+    }
+
+
+    public static void clearScreen() {  
+        System.out.print("\033[H\033[2J");  
+        System.out.flush();  
+    }
 }

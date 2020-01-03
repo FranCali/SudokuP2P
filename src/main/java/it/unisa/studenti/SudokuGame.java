@@ -3,6 +3,7 @@ package it.unisa.studenti;
 import java.io.IOException;
 
 import de.ad.sudoku.Grid;
+
 /**
 Copyright 2017 Universita' degli Studi di Salerno
 
@@ -26,37 +27,35 @@ limitations under the License.
 public interface SudokuGame {
 	/**
 	 * Creates new games.
-	 * @param _game_name a String, the sudoku game name.
+	 * @param gameName a String, the sudoku game name.
 	 * @return
 	 */
 	public Grid generateNewSudoku(String _game_name) throws Exception;
-	
+
 	/**
 	 * Joins in a game.
-	 * @param _game_name a String, the sudoku game name.
-	 * @param _nickname a String, the name of the user.
+	 * @param gameName a String, the sudoku game name.
+	 * @param nickname a String, the name of the user.
 	 * @return true if the join success, false otherwise.
 	 */
-	public boolean join(String _game_name, String _nickname);
+	public boolean join(String gameName, String nickname) throws ClassNotFoundException, IOException;
 
 	/**
 	 * Gets the Sudoku matrix game, with only the number placed by the user.
-	 * @param _game_name a String, the sudoku game name.
+	 * @param gameName a String, the sudoku game name.
 	 * @return the integer matrix of the sudoku game.
 	 */
-	public Grid getSudoku(String _game_name) throws ClassNotFoundException, IOException;
+	public Grid getSudoku(String gameName);
 	
 	/**
 	 * Places a new solution number in the game.
-	 * @param _game_name a String, the sudoku game name.
-	 * @param _i the position on the row.
-	 * @param _j the position on the column.
-	 * @param _number the solution number.
+	 * @param gameName a String, the sudoku game name.
+	 * @param i the position on the row.
+	 * @param j the position on the column.
+	 * @param number the solution number.
 	 * @return the integer score of the placed number.
 	 */
-	public Integer placeNumber(String _game_name, int _i, int _j, int _number);
-	
-	
+	public Integer placeNumber(String gameName, int i, int j, int number);
 	
 	
 }

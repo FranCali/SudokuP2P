@@ -1,58 +1,101 @@
 package it.unisa.studenti;
 
 import de.ad.sudoku.*;
-import de.ad.sudoku.Grid.Cell;
 
 import java.util.Scanner;
 
 
 public class App {
+    private static Grid localBoard;
 
-    public App(int peerId) throws Exception{
-
-        P2PSudoku sudoku = new P2PSudoku(peerId);
-        
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("1) Generate new game\n2) Join an existing game");
-        int option = scanner.nextInt();
-        
-        if(option == 1){//Generate and store a new game
-            System.out.print("Game name: ");
-            Grid grid = sudoku.generateNewSudoku(scanner.next());
-            
-            System.out.println("New Game Created!");
-            System.out.println(grid.toString());
-            
-            scanner.close();
-        }
-        else if(option == 2){
-            int empty = 0;
-            System.out.print("Game name: ");
-            Grid grid = sudoku.getSudoku(scanner.next());
-            
-            for (int row = 0; row < 9; row++) {
-                for (int column = 0; column < 9; column++) {
-                    Cell cell = grid.getCell(row, column);
-                    if(cell.isEmpty())
-                    empty++;
-                }
-            }
-
-            if(empty != 81)
-                System.out.print(grid.toString());
-        }
-        
+    public App() throws Exception{
     }
 
     public static void main( String[] args ) throws NumberFormatException, Exception{
-     
-        if(args.length == 0){
-            System.out.println("Enter peer ID as command line argument");
-            System.exit(-1);
-        }
         
-        new App(Integer.parseInt(args[0]));
+        Scanner scanner = new Scanner(System.in);
+
+        /*if(args.length == 0){
+            System.out.println("Enter peer ID as command line argument");
+            System.exit(0);
+        }*/
+
+        int peerId = Integer.parseInt(args[0]);
+        P2PSudoku sudoku = new P2PSudoku(peerId);
+        clearScreen();
+        printStartMenu();
+        int startOption = scanner.nextInt();
+        clearScreen();
+        System.out.print("Enter game name: ");
+        String gameName = scanner.next();
+        clearScreen();
+        
+        if(startOption == 1){
+            localBoard = sudoku.generateNewSudoku(gameName);
+        }
+        else if(startOption == 2){
+            System.out.print("Enter nickname: ");
+            String nickname = scanner.next();
+            sudoku.join(gameName, nickname);
+        }
+
+        clearScreen();
+
+        while(true){
+            printMenu();
+            int option = scanner.nextInt();
+
+            switch(option) {
+                case 1: 
+                    localBoard = sudoku.getSudoku(gameName); //DA AGGIUSTARE PERCHE' LA LOCAL BOARD CE L'HO GIA' COME VARIABILE LOCALE
+                    System.out.println(localBoard.toString());
+                    break;
+                case 2: 
+
+                    sudoku.placeNumber(gameName, i, j, number)
+                    break;
+                case 3:
+                    System.out.println("Are you sure to leave the game?\n1)yes\n2)no");
+                    int exitOption = scanner.nextInt();
+                    if(exitOption == 1){
+                        sudoku.leaveNetwork();
+                        scanner.close();
+                        System.exit(0);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+        }
 
     }
 
+
+    public static void printStartMenu(){
+        System.out.println("1) Create New Game");
+        System.out.println("2) Join Game");
+    }
+
+    public static void printMenu(){
+        System.out.println("1) View Board");
+        System.out.println("2) Place a Number");
+        System.out.println("3) Exit");
+    }
+
+    public static void PlaceNumberPrompt(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter Number: ");
+        scanner.next();
+        
+        scanner.close();
+    }
+
+    public static void clearScreen() {  
+        System.out.print("\033[H\033[2J");  
+        System.out.flush();  
+    }
+
+
 }
+

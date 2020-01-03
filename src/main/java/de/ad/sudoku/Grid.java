@@ -409,4 +409,25 @@ public class Grid implements Serializable{
       builder.append("╚═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╝\n");
     }
   }
+
+
+
+  public boolean isEmptyGrid(){
+    int empty = 0;
+    
+    for (int row = 0; row < 9; row++) {
+      for (int column = 0; column < 9; column++) {
+          Cell cell = this.getCell(row, column);
+          if(cell.isEmpty())
+            empty++;
+      }
+    }
+
+    if(empty == 81)
+      return true;
+
+    return false;
+  }
+
+
 }
