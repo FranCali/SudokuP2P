@@ -1,6 +1,7 @@
 package it.unisa.studenti;
 
 import de.ad.sudoku.*;
+import de.ad.sudoku.Grid.Cell;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
@@ -84,7 +85,6 @@ public class P2PSudoku implements SudokuGame {
     }
 
 
-
     private ArrayList<String> getGamePlayers(String gameName) throws ClassNotFoundException, IOException{
         ArrayList<String> players = new ArrayList<>();
 
@@ -126,12 +126,43 @@ public class P2PSudoku implements SudokuGame {
    
 
     public Integer placeNumber(String gameName, int row, int col, int number){
-        int point = 0;
+        int points = 0;
+        globalSudoku = getGlobalSudoku(gameName);
+        Cell globalCell = globalSudoku.getCell(row, col);
+        
+        if(globalCell.isEmpty()){
+            if(globalSudoku.isValidValueForCell(globalCell, number)){
+                globalCell.setValue(number);
+                points = 1;
+                this.storeGlobalSudoku(gameName, globalSudoku);
+            }
+            else{
+                points = -1;
+            }    
+        }
+        else {
+            if(globalSudoku.isValidValueForCell(globalCell, number)){
+                points = 0;
+            }
+            else{
+                points = -1;
+            }
+        }
 
+        Cell localCell = localSudoku.getCell(row, col);
+        if(localCell.isEmpty()){
+            if(localSudoku.isValidValueForCell(localCell, number)){
+                localCell.setValue(number);
+            }
+            else{
+                System.out.println("Not valid value");
+            }
+        }
+        else{
+            System.out.println("Cell not empty");
+        }
 
-
-
-        return point;
+        return points;
     }
 
     private boolean storeGlobalSudoku(String gameName, Grid grid) {
@@ -148,8 +179,9 @@ public class P2PSudoku implements SudokuGame {
         return false;
     }
 
-    public void leaveNetwork(){
-        
+    public boolean leaveNetwork(){
+        peer.peer().announceShutdown().start().awaitUninterruptibly();
+        return true;
     }
 
     @Override

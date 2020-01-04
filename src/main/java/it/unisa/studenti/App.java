@@ -76,7 +76,6 @@ public class App {
 
     }
 
-
     public static void printStartMenu(){
         System.out.println("1) Create New Game");
         System.out.println("2) Join Game");
