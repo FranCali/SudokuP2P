@@ -412,18 +412,17 @@ public class Grid implements Serializable{
 
 
 
-  public boolean isEmptyGrid(){
-    int empty = 0;
+  public boolean isFull(){
+    int elements = 0;
     
     for (int row = 0; row < 9; row++) {
       for (int column = 0; column < 9; column++) {
           Cell cell = this.getCell(row, column);
-          if(cell.isEmpty())
-            empty++;
+          if(!cell.isEmpty())
+            elements++;
       }
     }
-
-    if(empty == 81)
+    if(elements == 81)
       return true;
 
     return false;

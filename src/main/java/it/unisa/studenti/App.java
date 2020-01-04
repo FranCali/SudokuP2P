@@ -18,7 +18,12 @@ public class App {
         P2PSudoku sudoku = new P2PSudoku(peerId, new MessageListener(){
             @Override
             public Object parseMessage(Object obj) {
-                System.out.println(obj);
+                String message = (String) obj;
+                if(message.contains("Game Finished")){
+                    System.out.println(message);
+                    System.exit(0);
+                }
+                System.out.println(message);
                 return "success";
             }
         });

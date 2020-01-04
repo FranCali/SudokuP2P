@@ -116,8 +116,7 @@ public class P2PSudoku implements SudokuGame {
         return false;
     }
 
-
-    private HashMap<String, PeerAddress> getGamePlayers(String gameName) throws ClassNotFoundException, IOException{
+    public HashMap<String, PeerAddress> getGamePlayers(String gameName){
         String key = gameName + "_players";
         
         try{
@@ -179,12 +178,15 @@ public class P2PSudoku implements SudokuGame {
         clearScreen();
         System.out.println("My points: " + points + " New Score: " + this.score);
         String message = "Player " + this.nickname + " scored " + points + " points - New Score: " + Integer.toString(score);
-        this.broadcastScore(gameName, message);
+        this.broadcastMessage(gameName, message);
 
         Cell localCell = localSudoku.getCell(row, col);
         if(localCell.isEmpty()){
             if(localSudoku.isValidValueForCell(localCell, number)){
                 localCell.setValue(number);
+                if(localSudoku.isFull()){ //Termination condition
+                    this.endGame(gameName);
+                }
             }
             else{
                 System.out.println("Not valid value");
@@ -197,8 +199,7 @@ public class P2PSudoku implements SudokuGame {
         return points;
     }
 
-
-    private void broadcastScore(String gameName, Object score){
+    private void broadcastMessage(String gameName, Object message){
         HashMap<String, PeerAddress> players;
         try{
             FutureGet futureGet = peer.get(Number160.createHash(gameName + "_players")).start();
@@ -208,7 +209,7 @@ public class P2PSudoku implements SudokuGame {
             
                 for(PeerAddress player:players.values()){
                     if(!this.peer.peer().peerAddress().equals(player)){
-                        FutureDirect futureDirect = peer.peer().sendDirect(player).object(score).start();
+                        FutureDirect futureDirect = peer.peer().sendDirect(player).object(message).start();
                         futureDirect.awaitUninterruptibly();
                     }
                 }
@@ -217,7 +218,6 @@ public class P2PSudoku implements SudokuGame {
             e.printStackTrace();
         }
     }
-
 
     private boolean storeGlobalSudoku(String gameName, Grid grid) {
         try{
@@ -246,5 +246,11 @@ public class P2PSudoku implements SudokuGame {
     public static void clearScreen() {  
         System.out.print("\033[H\033[2J");  
         System.out.flush();  
+    }
+
+    private void endGame(String gameName){
+        String message = "Game Finished, " + "player " + nickname + " filled his board with score: " + score;
+        this.broadcastMessage(gameName, message);
+        System.exit(0);
     }
 }
