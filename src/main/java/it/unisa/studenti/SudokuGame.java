@@ -50,12 +50,12 @@ public interface SudokuGame {
 	/**
 	 * Places a new solution number in the game.
 	 * @param gameName a String, the sudoku game name.
-	 * @param i the position on the row.
-	 * @param j the position on the column.
+	 * @param row the position on the row.
+	 * @param col the position on the column.
 	 * @param number the solution number.
 	 * @return the integer score of the placed number.
 	 */
-	public Integer placeNumber(String gameName, int i, int j, int number);
+	public Integer placeNumber(String gameName, int row, int col, int number);
 	
 	
 }

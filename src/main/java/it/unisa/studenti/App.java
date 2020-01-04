@@ -51,8 +51,13 @@ public class App {
                     System.out.println(localBoard.toString());
                     break;
                 case 2: 
-
-                    sudoku.placeNumber(gameName, i, j, number)
+                    System.out.println("Enter Number: ");
+                    int number = scanner.nextInt();
+                    System.out.println("Enter row: ");
+                    int row = scanner.nextInt();
+                    System.out.println("Enter column: ");
+                    int col = scanner.nextInt();
+                    sudoku.placeNumber(gameName, row, col, number);
                     break;
                 case 3:
                     System.out.println("Are you sure to leave the game?\n1)yes\n2)no");
@@ -83,14 +88,7 @@ public class App {
         System.out.println("3) Exit");
     }
 
-    public static void PlaceNumberPrompt(){
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter Number: ");
-        scanner.next();
-        
-        scanner.close();
-    }
-
+   
     public static void clearScreen() {  
         System.out.print("\033[H\033[2J");  
         System.out.flush();  

@@ -107,28 +107,29 @@ public class P2PSudoku implements SudokuGame {
         return players;
     }
 
-    public Grid getGlobalSudoku(String gameName) throws ClassNotFoundException, IOException{
+    public Grid getGlobalSudoku(String gameName){
         Grid grid = Grid.emptyGrid();
-
-        FutureGet futureGet = peer.get(Number160.createHash(gameName)).start();
-        futureGet.awaitUninterruptibly();
-        if(futureGet.isSuccess()){
-            
-            try{
+        try{
+            FutureGet futureGet = peer.get(Number160.createHash(gameName)).start();
+            futureGet.awaitUninterruptibly();
+            if(futureGet.isSuccess()){
+                if(futureGet.isEmpty()) return null;
                 grid = (Grid) futureGet.dataMap().values().iterator().next().object();
-            }catch(NoSuchElementException e){
-                System.out.println("Game not found");
-                System.exit(0);
-            }
+                return grid;
+            }  
+        }catch(Exception e) {
+            e.printStackTrace();
         }
-       
-        return grid;
+        return null;
     }
 
    
 
-    public Integer placeNumber(String gameName, int i, int j, int number){
+    public Integer placeNumber(String gameName, int row, int col, int number){
         int point = 0;
+
+
+
 
         return point;
     }
