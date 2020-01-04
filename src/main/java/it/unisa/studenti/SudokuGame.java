@@ -38,7 +38,7 @@ public interface SudokuGame {
 	 * @param nickname a String, the name of the user.
 	 * @return true if the join success, false otherwise.
 	 */
-	public boolean join(String gameName, String nickname) throws ClassNotFoundException, IOException;
+	public boolean join(String gameName, String nickname);
 
 	/**
 	 * Gets the Sudoku matrix game, with only the number placed by the user.

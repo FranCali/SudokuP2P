@@ -14,31 +14,50 @@ public class App {
     public static void main( String[] args ) throws NumberFormatException, Exception{
         
         Scanner scanner = new Scanner(System.in);
-
-        /*if(args.length == 0){
-            System.out.println("Enter peer ID as command line argument");
-            System.exit(0);
-        }*/
-
         int peerId = Integer.parseInt(args[0]);
-        P2PSudoku sudoku = new P2PSudoku(peerId);
-        clearScreen();
-        printStartMenu();
-        int startOption = scanner.nextInt();
-        clearScreen();
-        System.out.print("Enter game name: ");
-        String gameName = scanner.next();
-        clearScreen();
-        
-        if(startOption == 1){
-            localBoard = sudoku.generateNewSudoku(gameName);
-        }
-        else if(startOption == 2){
-            System.out.print("Enter nickname: ");
-            String nickname = scanner.next();
-            sudoku.join(gameName, nickname);
-        }
+        P2PSudoku sudoku = new P2PSudoku(peerId, new MessageListener(){
+            @Override
+            public Object parseMessage(Object obj) {
+                System.out.println(obj);
+                return "success";
+            }
+        });
 
+        clearScreen();
+
+        boolean startGame = false;
+        String gameName = null;
+
+        while(!startGame){
+            printStartMenu();
+            int startOption = scanner.nextInt();
+            clearScreen();
+            System.out.print("Enter game name: ");
+            gameName = scanner.next();
+            clearScreen();
+            
+            if(startOption == 1){
+                localBoard = sudoku.generateNewSudoku(gameName);
+                System.out.print("Enter nickname: ");
+                String nickname = scanner.next();
+                if(sudoku.join(gameName, nickname))
+                    startGame = true;
+            }
+            else if(startOption == 2){
+                System.out.print("Enter nickname: ");
+                String nickname = scanner.next();
+                if(sudoku.join(gameName, nickname)){
+                    System.out.println("Successfully joined");
+                    startGame = true;
+                }
+                else{
+                    clearScreen();
+                    System.out.println("Failed to join, nickname already present or game not existing");
+                } 
+            }
+
+        }
+        
         clearScreen();
 
         while(true){
@@ -47,14 +66,21 @@ public class App {
 
             switch(option) {
                 case 1: 
+                    clearScreen();
                     localBoard = sudoku.getSudoku(gameName); //DA AGGIUSTARE PERCHE' LA LOCAL BOARD CE L'HO GIA' COME VARIABILE LOCALE
                     System.out.println(localBoard.toString());
                     break;
                 case 2: 
+                    clearScreen();
+                    System.out.println(localBoard.toString());
                     System.out.println("Enter Number: ");
                     int number = scanner.nextInt();
+                    clearScreen();
+                    System.out.println(localBoard.toString());
                     System.out.println("Enter row: ");
                     int row = scanner.nextInt();
+                    clearScreen();
+                    System.out.println(localBoard.toString());
                     System.out.println("Enter column: ");
                     int col = scanner.nextInt();
                     sudoku.placeNumber(gameName, row, col, number);
@@ -92,7 +118,6 @@ public class App {
         System.out.print("\033[H\033[2J");  
         System.out.flush();  
     }
-
 
 }
 
