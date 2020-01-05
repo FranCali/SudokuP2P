@@ -4,7 +4,6 @@ import de.ad.sudoku.*;
 import de.ad.sudoku.Grid.Cell;
 
 import java.util.HashMap;
-import java.util.Scanner;
 import java.net.InetAddress;
 
 import net.tomp2p.dht.FutureGet;
@@ -45,17 +44,10 @@ public class P2PSudoku implements SudokuGame {
         });
     }
 
-    public Grid generateNewSudoku(String gameName) throws Exception{
-        int command = -1;
-        Scanner scanner = new Scanner(System.in);
+    public Grid generateNewSudoku(String gameName, Integer difficulty) throws Exception{
         Grid grid = generator.generate(0);
 
-        do{
-            System.out.println("Chose difficulty: \n1)Easy \n2)Medium \n3)Hard");
-            command = scanner.nextInt();
-        }while(command!=1 && command!=2 && command!=3);
-        
-        switch(command){
+        switch(difficulty){
             case 1: 
                 grid = generator.generate(43); //Easy
                 break;

@@ -27,9 +27,10 @@ public interface SudokuGame {
 	/**
 	 * Creates new games.
 	 * @param gameName a String, the sudoku game name.
+	 * @param difficulty an Integer, the sudoku game difficulty.
 	 * @return
 	 */
-	public Grid generateNewSudoku(String _game_name) throws Exception;
+	public Grid generateNewSudoku(String gameName, Integer difficulty) throws Exception;
 
 	/**
 	 * Joins in a game.

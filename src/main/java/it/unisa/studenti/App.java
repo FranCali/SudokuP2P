@@ -47,14 +47,20 @@ public class App {
             gameName = scanner.next();
             clearScreen();
             
-            if(startOption == 1){
-                localBoard = sudoku.generateNewSudoku(gameName);
+            if(startOption == 1){ //Generate new game
+                int difficulty = -1;
+                do{
+                    System.out.println("Chose difficulty: \n1)Easy \n2)Medium \n3)Hard");
+                    difficulty = scanner.nextInt();
+                }while(difficulty!=1 && difficulty!=2 && difficulty!=3);
+
+                localBoard = sudoku.generateNewSudoku(gameName, difficulty);
                 System.out.print("Enter nickname: ");
                 nickname = scanner.next();
                 if(sudoku.join(gameName, nickname))
                     startGame = true;
             }
-            else if(startOption == 2){
+            else if(startOption == 2){ //Join existing game
                 System.out.print("Enter nickname: ");
                 nickname = scanner.next();
                 if(sudoku.join(gameName, nickname)){
