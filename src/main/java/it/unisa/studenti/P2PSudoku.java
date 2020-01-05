@@ -3,13 +3,8 @@ package it.unisa.studenti;
 import de.ad.sudoku.*;
 import de.ad.sudoku.Grid.Cell;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.Scanner;
-
-import java.io.IOException;
 import java.net.InetAddress;
 
 import net.tomp2p.dht.FutureGet;
@@ -28,13 +23,10 @@ public class P2PSudoku implements SudokuGame {
     private Grid globalSudoku;
     private Grid localSudoku;
     private Integer score = 0;
-    private String nickname;
 
-    Generator generator = new Generator();
-    Random random = new Random();
+    private Generator generator = new Generator();
 
     final private PeerDHT peer;
-    ArrayList<String> players = new ArrayList<>();
 
     public P2PSudoku(int peerId, String masterPeer, final MessageListener listener) throws Exception{
         peer = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(peerId)).ports(4000 + peerId).start()).start();
@@ -79,6 +71,7 @@ public class P2PSudoku implements SudokuGame {
         if(this.storeGlobalSudoku(gameName + "_empty", grid)){ //Store the initiated version
             this.storeGlobalSudoku(gameName, grid);
             this.localSudoku = grid;
+
             return this.localSudoku;
         } 
         else{
@@ -88,19 +81,22 @@ public class P2PSudoku implements SudokuGame {
 
     public boolean join(String gameName, String nickname) {
         String key = gameName + "_players";
-        HashMap<String, PeerAddress> players = new HashMap<>();
+        HashMap<String, Object[]> players = new HashMap<>();
 
         if(getGlobalSudoku(gameName)!= null){
             try{
-                if(getGamePlayers(gameName) == null){
+                if(getGamePlayers(gameName) == null){ //First Player to join game
                     peer.put(Number160.createHash(key)).data(new Data(players)).start().awaitUninterruptibly();   
                 }
                 players = getGamePlayers(gameName);
-                if(players.containsKey(nickname))
+                if(players.containsKey(nickname)){
                     return false;
+                }
                 else{
-                    this.nickname = nickname;
-                    players.put(nickname, peer.peer().peerAddress());
+                    Object[] playerInfo = new Object[2]; //array containing player address and player score
+                    playerInfo[0] = peer.peer().peerAddress();
+                    playerInfo[1] = score;
+                    players.put(nickname, playerInfo);
                     peer.put(Number160.createHash(key)).data(new Data(players)).start().awaitUninterruptibly();   
                     this.localSudoku = this.getGlobalSudoku(gameName + "_empty");
                     return true;
@@ -115,14 +111,15 @@ public class P2PSudoku implements SudokuGame {
         return false;
     }
 
-    public HashMap<String, PeerAddress> getGamePlayers(String gameName){
+    @SuppressWarnings("unchecked")
+    public HashMap<String, Object[]> getGamePlayers(String gameName){
         String key = gameName + "_players";
         
         try{
             FutureGet futureGet = peer.get(Number160.createHash(key)).start();
                 futureGet.awaitUninterruptibly();
                 if(futureGet.isSuccess() && !futureGet.isEmpty()){
-                    return (HashMap<String, PeerAddress>) futureGet.dataMap().values().iterator().next().object();
+                    return (HashMap<String, Object[]>) futureGet.dataMap().values().iterator().next().object();
                 }
                 else{
                     return null;
@@ -149,7 +146,7 @@ public class P2PSudoku implements SudokuGame {
         return null;
     }
 
-    public Integer placeNumber(String gameName, int row, int col, int number){
+    public Integer placeNumber(String gameName, String nickname, int row, int col, int number){
         int points = 0;
         globalSudoku = this.getGlobalSudoku(gameName);
         Cell globalCell = globalSudoku.getCell(row, col);
@@ -176,7 +173,7 @@ public class P2PSudoku implements SudokuGame {
 
         clearScreen();
         System.out.println("My points: " + points + " New Score: " + this.score);
-        String message = "Player " + this.nickname + " scored " + points + " points - New Score: " + Integer.toString(score);
+        String message = "Player " + nickname + " scored " + points + " points - New Score: " + Integer.toString(score);
         this.broadcastMessage(gameName, message);
 
         Cell localCell = localSudoku.getCell(row, col);
@@ -184,7 +181,7 @@ public class P2PSudoku implements SudokuGame {
             if(localSudoku.isValidValueForCell(localCell, number)){
                 localCell.setValue(number);
                 if(localSudoku.isFull()){ //Termination condition
-                    this.endGame(gameName);
+                    this.endGame(gameName, nickname);
                 }
             }
             else{
@@ -198,17 +195,18 @@ public class P2PSudoku implements SudokuGame {
         return points;
     }
 
+    @SuppressWarnings("unchecked")
     private void broadcastMessage(String gameName, Object message){
-        HashMap<String, PeerAddress> players;
+        HashMap<String, Object[]> players;
         try{
             FutureGet futureGet = peer.get(Number160.createHash(gameName + "_players")).start();
             futureGet.awaitUninterruptibly();
             if(futureGet.isSuccess() && !futureGet.isEmpty()){
-                players =  (HashMap<String,PeerAddress>) futureGet.dataMap().values().iterator().next().object();
+                players =  (HashMap<String,Object[]>) futureGet.dataMap().values().iterator().next().object();
             
-                for(PeerAddress player:players.values()){
-                    if(!this.peer.peer().peerAddress().equals(player)){
-                        FutureDirect futureDirect = peer.peer().sendDirect(player).object(message).start();
+                for(Object[] player:players.values()){
+                    if(!this.peer.peer().peerAddress().equals((PeerAddress) player[0])){
+                        FutureDirect futureDirect = peer.peer().sendDirect((PeerAddress) player[0]).object(message).start();
                         futureDirect.awaitUninterruptibly();
                     }
                 }
@@ -232,9 +230,14 @@ public class P2PSudoku implements SudokuGame {
         return false;
     }
 
-    public boolean leaveNetwork(){
-        peer.peer().announceShutdown().start().awaitUninterruptibly();
-        return true;
+    public boolean leaveGame(String gameName, String nickname){
+
+        if(removePlayer(gameName, nickname)){
+            peer.peer().announceShutdown().start().awaitUninterruptibly();
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -247,9 +250,32 @@ public class P2PSudoku implements SudokuGame {
         System.out.flush();  
     }
 
-    private void endGame(String gameName){
+    private void endGame(String gameName, String nickname){
         String message = "Game Finished, " + "player " + nickname + " filled his board with score: " + score;
         this.broadcastMessage(gameName, message);
         System.exit(0);
+    }
+
+    private boolean removePlayer(String gameName, String nickname){
+        String key = gameName + "_players";
+
+        HashMap<String, Object[]> players = this.getGamePlayers(gameName);
+        if(players != null){
+            if(players.containsKey(nickname)){
+                try{
+                    players.remove(nickname);
+
+                    peer.put(Number160.createHash(key)).data(new Data(players)).start().awaitUninterruptibly();   
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+                
+                return true;
+            }
+            else
+                return false;
+        }
+        
+        return false;
     }
 }

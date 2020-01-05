@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * This class represents a Sudoku Grid consisting of a 9x9 matrix containing nine 3x3 sub-grids of
@@ -13,6 +12,7 @@ import java.util.stream.Collectors;
  */
 public class Grid implements Serializable{
 
+  private static final long serialVersionUID = 1L;
   private final Cell[][] grid;
 
   private Grid(Cell[][] grid) {
@@ -232,6 +232,8 @@ public class Grid implements Serializable{
    * convenient methods.
    */
   public static class Cell implements Serializable{
+    
+    private static final long serialVersionUID = 1L;
     private int value;
     private Collection<Cell> rowNeighbors;
     private Collection<Cell> columnNeighbors;

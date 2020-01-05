@@ -2,6 +2,10 @@ package it.unisa.studenti;
 
 import de.ad.sudoku.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -33,6 +37,7 @@ public class App {
 
         boolean startGame = false;
         String gameName = null;
+        String nickname = null;
 
         while(!startGame){
             printStartMenu();
@@ -45,19 +50,19 @@ public class App {
             if(startOption == 1){
                 localBoard = sudoku.generateNewSudoku(gameName);
                 System.out.print("Enter nickname: ");
-                String nickname = scanner.next();
+                nickname = scanner.next();
                 if(sudoku.join(gameName, nickname))
                     startGame = true;
             }
             else if(startOption == 2){
                 System.out.print("Enter nickname: ");
-                String nickname = scanner.next();
+                nickname = scanner.next();
                 if(sudoku.join(gameName, nickname)){
                     System.out.println("Successfully joined");
                     startGame = true;
                 }
                 else{
-                    clearScreen();
+                    //clearScreen();
                     System.out.println("Failed to join, nickname already present or game not existing");
                 } 
             }
@@ -89,15 +94,25 @@ public class App {
                     System.out.println(localBoard.toString());
                     System.out.println("Enter column: ");
                     int col = scanner.nextInt();
-                    sudoku.placeNumber(gameName, row, col, number);
+                    sudoku.placeNumber(gameName, nickname, row, col, number);
                     break;
-                case 3:
+                
+                case 3: 
+                    clearScreen();
+                    printLeaderBoard(sudoku, gameName);
+                    System.out.println("\n\n\n");
+                    break;    
+                case 4:
                     System.out.println("Are you sure to leave the game?\n1)yes\n2)no");
                     int exitOption = scanner.nextInt();
                     if(exitOption == 1){
-                        sudoku.leaveNetwork();
-                        scanner.close();
-                        System.exit(0);
+                        if(sudoku.leaveGame(gameName, nickname)){
+                            scanner.close();
+                            System.exit(0); 
+                        }
+                        else{
+                            System.out.println("Error leaving the game");
+                        }
                     }
                     break;
                 default:
@@ -114,15 +129,35 @@ public class App {
     }
 
     public static void printMenu(){
-        System.out.println("1) View Board");
+        System.out.println("1) View Sudoku");
         System.out.println("2) Place a Number");
-        System.out.println("3) Exit");
+        System.out.println("3) View LeaderBoard");
+        System.out.println("4) Exit");
     }
 
    
     public static void clearScreen() {  
         System.out.print("\033[H\033[2J");  
         System.out.flush();  
+    }
+
+    public static void printLeaderBoard(P2PSudoku sudoku, String gameName){
+        final HashMap<String, Object[]> players = sudoku.getGamePlayers(gameName);
+        List<Integer> scores = new ArrayList<>();
+        
+        for(Object[] player: players.values())
+            scores.add((Integer) player[1]);
+
+        Collections.sort(scores);
+        int i = 0;
+
+        System.out.println("--------LEADERBOARD--------");
+        for(String player: players.keySet()){
+            System.out.println("Player: " + player + " Score: " + scores.get(i));
+            i++;
+        }
+        System.out.println("----------------------------");
+
     }
 
 }

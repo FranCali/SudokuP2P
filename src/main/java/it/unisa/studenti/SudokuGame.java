@@ -1,6 +1,5 @@
 package it.unisa.studenti;
 
-import java.io.IOException;
 
 import de.ad.sudoku.Grid;
 
@@ -43,19 +42,20 @@ public interface SudokuGame {
 	/**
 	 * Gets the Sudoku matrix game, with only the number placed by the user.
 	 * @param gameName a String, the sudoku game name.
-	 * @return the integer matrix of the sudoku game.
+	 * @return a Grid object representing the matrix of the sudoku game.
 	 */
 	public Grid getSudoku(String gameName);
 	
 	/**
 	 * Places a new solution number in the game.
 	 * @param gameName a String, the sudoku game name.
+	 * @param nickname a String, the player nickname.
 	 * @param row the position on the row.
 	 * @param col the position on the column.
 	 * @param number the solution number.
 	 * @return the integer score of the placed number.
 	 */
-	public Integer placeNumber(String gameName, int row, int col, int number);
+	public Integer placeNumber(String gameName, String nickname, int row, int col, int number);
 	
 	
 }
