@@ -15,7 +15,8 @@ public class App {
         
         Scanner scanner = new Scanner(System.in);
         int peerId = Integer.parseInt(args[0]);
-        P2PSudoku sudoku = new P2PSudoku(peerId, new MessageListener(){
+        String masterPeer = args[1];
+        P2PSudoku sudoku = new P2PSudoku(peerId, masterPeer, new MessageListener(){
             @Override
             public Object parseMessage(Object obj) {
                 String message = (String) obj;

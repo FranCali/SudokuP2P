@@ -36,11 +36,10 @@ public class P2PSudoku implements SudokuGame {
     final private PeerDHT peer;
     ArrayList<String> players = new ArrayList<>();
 
-
-    public P2PSudoku(int peerId, final MessageListener listener) throws Exception{
+    public P2PSudoku(int peerId, String masterPeer, final MessageListener listener) throws Exception{
         peer = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(peerId)).ports(4000 + peerId).start()).start();
         FutureBootstrap fb;
-        fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName("127.0.0.1")).ports(4001).start();
+        fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName(masterPeer)).ports(4001).start();
         fb.awaitUninterruptibly();
         if(fb.isSuccess())
             peer.peer().discover().peerAddress(fb.bootstrapTo().iterator().next()).start().awaitUninterruptibly();
