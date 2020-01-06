@@ -49,7 +49,7 @@ public class Generator {
     Grid grid = Grid.emptyGrid();
 
     solver.solve(grid);
-
+   
     return grid;
   }
 }

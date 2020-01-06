@@ -1,5 +1,6 @@
 package it.unisa.studenti;
 
+import java.io.IOException;
 
 import de.ad.sudoku.Grid;
 
@@ -56,7 +57,7 @@ public interface SudokuGame {
 	 * @param number the solution number.
 	 * @return the integer score of the placed number.
 	 */
-	public Integer placeNumber(String gameName, String nickname, int row, int col, int number);
+	public Integer placeNumber(String gameName, String nickname, int row, int col, int number) throws ClassNotFoundException, InterruptedException, IOException;
 	
 	
 }

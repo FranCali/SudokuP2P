@@ -32,6 +32,15 @@ public class Solver {
     }
   }
 
+  public boolean isSolvable(Grid grid) {
+    boolean solvable = solve(grid, grid.getFirstEmptyCell());
+
+    if (!solvable)
+      return false;
+    else
+      return true;
+  } 
+
   private boolean solve(Grid grid, Optional<Grid.Cell> cell) {
     if (!cell.isPresent()) {
       return true;
