@@ -8,9 +8,9 @@ COPY --from=0 /app/SudokuP2P /app
 RUN mvn package
 
 FROM openjdk:8-jre-alpine
-WORKDIR /app
+WORKDIR /SudokuP2P
 ENV MASTERIP=127.0.0.1
 ENV ID=0
-COPY --from=1 /app/target/SudokuP2P-1.0.jar /app
+COPY --from=1 /app /SudokuP2P
 
-CMD /usr/bin/java -cp SudokuP2P-1.0.jar it.unisa.studenti.App -id $ID -m $MASTERIP
+CMD /usr/bin/java -cp target/SudokuP2P-1.0.jar it.unisa.studenti.App $ID $MASTERIP

@@ -208,13 +208,11 @@ public class P2PSudoku implements SudokuGame {
         HashMap<String, Integer> playerScores = new HashMap<>();
 
         for(String nickname: players.keySet()){
-            System.out.println(nickname + players.get(nickname)[1]);
             playerScores.put(nickname, (Integer) players.get(nickname)[1]);
         }
 
         MapUtils.sortByValue(playerScores);
         for(String nickname: playerScores.keySet()){
-            System.out.println(nickname + playerScores.get(nickname));
             playerScores.put(nickname, (Integer) players.get(nickname)[1]);
         }
 
@@ -234,7 +232,6 @@ public class P2PSudoku implements SudokuGame {
 		HashMap<String, Integer> playerScores = new HashMap<>();
 
 		for(String nickname: players.keySet()){
-            System.out.println(nickname);
 			playerScores.put(nickname, (Integer) players.get(nickname)[1]);
 		}
 
