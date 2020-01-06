@@ -1,7 +1,6 @@
 package it.unisa.studenti;
 
 import java.io.IOException;
-
 import de.ad.sudoku.Grid;
 
 /**
@@ -59,5 +58,12 @@ public interface SudokuGame {
 	 */
 	public Integer placeNumber(String gameName, String nickname, int row, int col, int number) throws ClassNotFoundException, InterruptedException, IOException;
 	
-	
+	/**
+	 * Leaves the sudoku game.
+	 * @param gameName a String, the sudoku game name.
+	 * @param nickname a String, the player nickname.
+	 * @return 
+	 */
+	public void leaveGame(String gameName, String nickname) throws ClassNotFoundException, InterruptedException, IOException;
+
 }

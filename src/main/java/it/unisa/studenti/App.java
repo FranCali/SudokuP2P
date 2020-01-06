@@ -116,19 +116,15 @@ public class App {
                     case 3: 
                         CmdLineUtils.clearScreen();
                         printLeaderBoard(sudoku, gameName);
-                        System.out.println("\n\n\n");
+                        System.out.println("\n\n");
                         break;    
                     case 4:
                         System.out.println("Are you sure to leave the game?\n1)yes\n2)no");
                         int exitOption = scanner.nextInt();
                         if(exitOption == 1){
-                            if(sudoku.leaveGame(gameName, nickname)){
-                                scanner.close();
-                                System.exit(0); 
-                            }
-                            else{
-                                System.out.println("Error leaving the game");
-                            }
+                            sudoku.leaveGame(gameName, nickname);
+                            scanner.close();
+                            System.exit(0); 
                         }
                         break;
                     default:
@@ -162,14 +158,7 @@ public class App {
     }
 
     public static void printLeaderBoard(P2PSudoku sudoku, String gameName){
-        final HashMap<String, Object[]> players = sudoku.getGamePlayers(gameName);
-        HashMap<String, Integer> playerScores = new HashMap<>();
-
-        for(String nickname: players.keySet()){
-            playerScores.put(nickname, (Integer) players.get(nickname)[1]);
-        }
-
-        MapUtils.sortByValue(playerScores);
+        HashMap<String, Integer> playerScores = sudoku.getLeaderboard(gameName);
 
         System.out.println("--------LEADERBOARD--------");
         for(String player: playerScores.keySet()){
