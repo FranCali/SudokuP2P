@@ -2,15 +2,10 @@ package it.unisa.studenti;
 
 import de.ad.sudoku.*;
 import de.ad.sudoku.Grid.Cell;
-
-import java.util.ArrayList;
-import java.util.Comparator;
+import it.unisa.studenti.utils.*;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Map.Entry;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -214,7 +209,7 @@ public class P2PSudoku implements SudokuGame {
             score = 0;
         storePlayer(peer, gameName, nickname);
 
-        clearScreen();
+        CmdLineUtils.clearScreen();
         System.out.println("My points: " + points + " New Score: " + score);
         String message = "Player " + nickname + " scored " + points + " points - New Score: " + Integer.toString(score);
         this.broadcastMessage(gameName, message);
@@ -265,7 +260,7 @@ public class P2PSudoku implements SudokuGame {
             playerScores.put(nickname, (Integer) players.get(nickname)[1]);
         }
 
-        sortByValue(playerScores);
+        MapUtils.sortByValue(playerScores);
         for(String nickname: playerScores.keySet()){
             System.out.println(nickname + playerScores.get(nickname));
             playerScores.put(nickname, (Integer) players.get(nickname)[1]);
@@ -472,11 +467,6 @@ public class P2PSudoku implements SudokuGame {
         return false;
     }
 
-    public static void clearScreen() {  
-        System.out.print("\033[H\033[2J");  
-        System.out.flush();  
-    }
-
     private void initPlayers(String gameName, String nickname){
         HashMap<String, Object[]> players = new HashMap<>();
         String key = gameName + "_players";
@@ -517,17 +507,4 @@ public class P2PSudoku implements SudokuGame {
         }
     }
 
-
-
-    public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-        List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
-        list.sort(Entry.comparingByValue(Comparator.reverseOrder()));
-
-        Map<K, V> result = new LinkedHashMap<>();
-        for (Entry<K, V> entry : list) {
-            result.put(entry.getKey(), entry.getValue());
-        }
-
-        return result;
-    }
 }

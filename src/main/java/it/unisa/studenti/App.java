@@ -1,15 +1,11 @@
 package it.unisa.studenti;
 
 import de.ad.sudoku.*;
-
-import java.util.ArrayList;
+import it.unisa.studenti.utils.*;
 import java.util.HashMap;
 import java.util.InputMismatchException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Map.Entry;
+
 
 
 public class App {
@@ -36,7 +32,7 @@ public class App {
             }
         });
 
-        clearScreen();
+        CmdLineUtils.clearScreen();
 
         boolean startGame = false;
         String gameName = null;
@@ -48,11 +44,11 @@ public class App {
             try{
                 startOption = scanner.nextInt();
             
-                clearScreen();
+                CmdLineUtils.clearScreen();
                 System.out.print("Enter game name: ");
                 gameName = scanner.next();
                 
-                clearScreen();
+                CmdLineUtils.clearScreen();
                 
                 if(startOption == 1){ //Generate new game
                     int difficulty = -1;
@@ -62,7 +58,7 @@ public class App {
                     }while(difficulty!=1 && difficulty!=2 && difficulty!=3);
 
                     localBoard = sudoku.generateNewSudoku(gameName, difficulty);
-                    //clearScreen();
+                    CmdLineUtils.clearScreen();
                     System.out.print("Enter nickname: ");
                     nickname = scanner.next();
                     if(sudoku.join(gameName, nickname))
@@ -76,18 +72,18 @@ public class App {
                         startGame = true;
                     }
                     else{
-                        clearScreen();
+                        CmdLineUtils.clearScreen();
                         System.out.println("Failed to join, nickname already present or game not existing");
                     } 
                 }
             }catch(InputMismatchException e){
-                clearScreen();
+                CmdLineUtils.clearScreen();
                 System.out.println("Format Error, try again");
                 scanner.nextLine();
             }
         }
         
-        clearScreen();
+        CmdLineUtils.clearScreen();
 
         while(true){
             printMenu();
@@ -96,21 +92,21 @@ public class App {
 
                 switch(option) {
                     case 1: 
-                        clearScreen();
+                        CmdLineUtils.clearScreen();
                         localBoard = sudoku.getSudoku(gameName);
                         System.out.println(localBoard.toString());
                         break;
                     case 2: 
-                        clearScreen();
+                        CmdLineUtils.clearScreen();
                         localBoard = sudoku.getSudoku(gameName);
                         System.out.println(localBoard.toString());
                         System.out.println("Enter Number: ");
                         int number = scanner.nextInt();
-                        clearScreen();
+                        CmdLineUtils.clearScreen();
                         System.out.println(localBoard.toString());
                         System.out.println("Enter row: ");
                         int row = scanner.nextInt();
-                        clearScreen();
+                        CmdLineUtils.clearScreen();
                         System.out.println(localBoard.toString());
                         System.out.println("Enter column: ");
                         int col = scanner.nextInt();
@@ -118,7 +114,7 @@ public class App {
                         break;
                     
                     case 3: 
-                        clearScreen();
+                        CmdLineUtils.clearScreen();
                         printLeaderBoard(sudoku, gameName);
                         System.out.println("\n\n\n");
                         break;    
@@ -139,7 +135,7 @@ public class App {
                         break;
                 }
             }catch(InputMismatchException e){
-                clearScreen();
+                CmdLineUtils.clearScreen();
                 System.out.println("Format Error, use numeric options");
                 scanner.nextLine();
             }
@@ -173,7 +169,7 @@ public class App {
             playerScores.put(nickname, (Integer) players.get(nickname)[1]);
         }
 
-        sortByValue(playerScores);
+        MapUtils.sortByValue(playerScores);
 
         System.out.println("--------LEADERBOARD--------");
         for(String player: playerScores.keySet()){
@@ -181,20 +177,6 @@ public class App {
         }
         System.out.println("----------------------------");
 
-    }
-
-
-    
-    public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-        List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
-        list.sort(Entry.comparingByValue());
-
-        Map<K, V> result = new LinkedHashMap<>();
-        for (Entry<K, V> entry : list) {
-            result.put(entry.getKey(), entry.getValue());
-        }
-
-        return result;
     }
     
 }
