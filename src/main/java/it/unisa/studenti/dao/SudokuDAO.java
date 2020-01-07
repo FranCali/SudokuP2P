@@ -21,7 +21,10 @@ public class SudokuDAO {
     public static boolean initGlobalSudoku(PeerDHT peer, String gameName, Grid grid) {
         try{
             FutureGet futureGet = peer.get(Number160.createHash(gameName)).start();
-            futureGet.awaitUninterruptibly();
+			futureGet.awaitUninterruptibly();
+			if(futureGet.isSuccess() && !futureGet.isEmpty()){
+				return false;
+			}
             if(futureGet.isSuccess()) {
                 peer.put(Number160.createHash(gameName)).data(new Data(grid)).start().awaitUninterruptibly();   
                 return true; 
@@ -49,13 +52,12 @@ public class SudokuDAO {
         return null;
     }
 
-    public static void storeGlobalSudoku(PeerDHT peerDHT, String gameName, int row, int col, int number) throws ClassNotFoundException, InterruptedException, IOException {
+    public static boolean storeGlobalSudoku(PeerDHT peerDHT, String gameName, int row, int col, int number) throws ClassNotFoundException, InterruptedException, IOException {
 		Pair<Number640, Byte> pair2 = null;
 		for (int i = 0; i < 5; i++) {
 			Pair<Number160, Data> pair = getAndUpdateGlobalSudoku(peerDHT, gameName, row, col, number);
 			if (pair == null) {
-				System.out.println("we cannot handle this kind of inconsistency automatically, handing over the the API dev");
-				return;
+				return false;
 			}
 			FuturePut fp = peerDHT
 					.put(Number160.createHash(gameName))
@@ -76,16 +78,22 @@ public class SudokuDAO {
 			peerDHT.put(Number160.createHash(gameName))
 					.versionKey(pair2.element0().versionKey()).putConfirm()
 					.data(new Data()).start().awaitUninterruptibly();
+			return true;
 		} else {
 			System.out
 					.println("we cannot handle this kind of inconsistency automatically, handing over the the API dev");
 		}
+		return false;
     }
 
     private static Pair<Number160, Data> getAndUpdateGlobalSudoku(PeerDHT peerDHT, String gameName, int row, int col, int number) throws InterruptedException, ClassNotFoundException, IOException {
 		Pair<Number640, Data> pair = null;
 		for (int i = 0; i < 5; i++) {
             FutureGet fg = peerDHT.get(Number160.createHash(gameName)).getLatest().start().awaitUninterruptibly();
+			
+			if(fg.isSuccess() && fg.isEmpty()){
+				return null;
+			}
 			// check if all the peers agree on the same latest version, if not
 			// wait a little and try again
             pair = checkVersions(fg.rawData());

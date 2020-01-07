@@ -62,8 +62,8 @@ public interface SudokuGame {
 	 * Leaves the sudoku game.
 	 * @param gameName a String, the sudoku game name.
 	 * @param nickname a String, the player nickname.
-	 * @return 
+	 * @return True is leaving is successful, False otherwise.
 	 */
-	public void leaveGame(String gameName, String nickname) throws ClassNotFoundException, InterruptedException, IOException;
+	public boolean leaveGame(String gameName, String nickname) throws ClassNotFoundException, InterruptedException, IOException;
 
 }

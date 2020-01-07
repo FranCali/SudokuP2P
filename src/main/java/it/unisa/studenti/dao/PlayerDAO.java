@@ -35,7 +35,7 @@ public class PlayerDAO {
         return null;
     }
 
-    public static void initPlayers(PeerDHT peer, String gameName, String nickname, Integer score){
+    public static boolean initPlayers(PeerDHT peer, String gameName, String nickname, Integer score){
         HashMap<String, Object[]> players = new HashMap<>();
         String key = gameName + "_players";
         Object[] playerInfo = new Object[2];
@@ -43,24 +43,28 @@ public class PlayerDAO {
         playerInfo[1] = score;
         players.put(nickname, playerInfo);
         try{
-            FutureGet futureGet = peer.get(Number160.createHash(key)).start();
+            FutureGet futureGet = peer.get(Number160.createHash(gameName)).start();
             futureGet.awaitUninterruptibly();
             
-            if(futureGet.isSuccess()) {
+            if(futureGet.isSuccess() && !futureGet.isEmpty()){
                 peer.put(Number160.createHash(key)).data(new Data(players)).start().awaitUninterruptibly(); 
+                return true;
+            }
+            else if(futureGet.isSuccess()) {
+                return false;
             }
         }catch(Exception e){
             e.printStackTrace();
         }
+        return false;
     }
 
-    public static void storePlayer(PeerDHT peerDHT, String gameName, String nickname, Integer score, Boolean isDeletion) throws ClassNotFoundException, InterruptedException, IOException{
+    public static boolean storePlayer(PeerDHT peerDHT, String gameName, String nickname, Integer score, Boolean isDeletion) throws ClassNotFoundException, InterruptedException, IOException{
         Pair<Number640, Byte> pair2 = null;
 		for (int i = 0; i < 5; i++) {
-			Pair<Number160, Data> pair = getAndUpdatePlayer(peerDHT, gameName, nickname, score, isDeletion);
+            Pair<Number160, Data> pair = getAndUpdatePlayer(peerDHT, gameName, nickname, score, isDeletion);
 			if (pair == null) {
-				System.out.println("we cannot handle this kind of inconsistency automatically, handing over the the API dev");
-				return;
+				return false;
 			}
 			FuturePut fp = peerDHT
 					.put(Number160.createHash(gameName + "_players"))
@@ -80,10 +84,12 @@ public class PlayerDAO {
 		if (pair2 != null && pair2.element1() == 1) {
 			peerDHT.put(Number160.createHash(gameName + "_players"))
 					.versionKey(pair2.element0().versionKey()).putConfirm()
-					.data(new Data()).start().awaitUninterruptibly();
+                    .data(new Data()).start().awaitUninterruptibly();
+            return true;
 		} else {
 			System.out
-					.println("we cannot handle this kind of inconsistency automatically, handing over the the API dev");
+                    .println("we cannot handle this kind of inconsistency automatically, handing over the the API dev");
+            return false;
 		}
     }
 
@@ -93,6 +99,8 @@ public class PlayerDAO {
         Pair<Number640, Data> pair = null;
 		for (int i = 0; i < 5; i++) {
             FutureGet fg = peerDHT.get(Number160.createHash(gameName + "_players")).getLatest().start().awaitUninterruptibly();
+            if(fg.isSuccess() && fg.isEmpty())
+                return null;
             // check if all the peers agree on the same latest version, if not
 			// wait a little and try again
             pair = checkVersions(fg.rawData());
@@ -114,7 +122,10 @@ public class PlayerDAO {
                 players.put(nickname, playerInfo);
             }
             else{
-               players.remove(nickname); 
+                if(players.containsKey(nickname)) 
+                    players.remove(nickname); 
+                else
+                    return null;
             }
             
 			Data newData = new Data(players);

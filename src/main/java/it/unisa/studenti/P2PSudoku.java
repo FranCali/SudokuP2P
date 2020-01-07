@@ -45,7 +45,13 @@ public class P2PSudoku implements SudokuGame {
                 return listener.parseMessage(request);
             }
         });
+    }
 
+    public PeerDHT getPeer(){
+        return this.peer;
+    }
+    public Integer getScore(){
+        return score;
     }
 
     public Grid generateNewSudoku(String gameName, Integer difficulty) throws Exception{
@@ -126,6 +132,8 @@ public class P2PSudoku implements SudokuGame {
     public Integer placeNumber(String gameName, String nickname, int row, int col, int number) throws ClassNotFoundException, InterruptedException, IOException {
         int points = 0;
         globalSudoku = SudokuDAO.getGlobalSudoku(peer, gameName);
+        if(globalSudoku == null)
+            return null;
         Cell globalCell = globalSudoku.getCell(row, col);
         Cell solutionCell = solution.getCell(row, col);
 
@@ -182,10 +190,14 @@ public class P2PSudoku implements SudokuGame {
         return points;
     }
     
-    public void leaveGame(String gameName, String nickname) throws ClassNotFoundException, InterruptedException, IOException {
-        PlayerDAO.storePlayer(peer, gameName, nickname, score, true); //true flag for isDeletion
-        System.out.println("Player removed");
-        peer.peer().announceShutdown().start().awaitUninterruptibly();
+    public boolean leaveGame(String gameName, String nickname) throws ClassNotFoundException, InterruptedException, IOException {
+        
+        if(PlayerDAO.storePlayer(peer, gameName, nickname, score, true)){//true flag for isDeletion
+            System.out.println("Player removed");
+            peer.peer().announceShutdown().start().awaitUninterruptibly();
+            return true;
+        }
+        return false;
     }
     
     private Grid getSolution(String gameName){
@@ -229,7 +241,11 @@ public class P2PSudoku implements SudokuGame {
 
     public HashMap<String, Integer> getLeaderboard(String gameName) { 
 		final HashMap<String, Object[]> players = PlayerDAO.getGamePlayers(peer, gameName);
-		HashMap<String, Integer> playerScores = new HashMap<>();
+        
+        if(players == null)
+            return null;
+
+        HashMap<String, Integer> playerScores = new HashMap<>();
 
 		for(String nickname: players.keySet()){
 			playerScores.put(nickname, (Integer) players.get(nickname)[1]);
