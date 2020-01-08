@@ -104,7 +104,7 @@ public class SudokuGameTest {
         
         cl[3] = new CountDownLatch(1);
         //one random peer leaves the game
-        int index = random.nextInt(3) + 2;
+        int index = random.nextInt(3) + 1;
         new Thread(new peerLeaveGameRunnable(peerSudoku[index], gameName, nicknames[index])).start();
         cl[3].await();
 
