@@ -45,6 +45,7 @@ All core functionalities of the sudoku P2P game have been tested, in particular,
 ## Build and run with Docker
 This project supports Docker.
 You can have the project up and runnning with the following steps:
+
 1) Clone the project from github at the following link: <a>https://github.com/FranCali/SudokuP2P.git</a>
 
 2) Move to the project folder and build the docker container with the following command:
@@ -60,7 +61,7 @@ ID and MASTERIP are Docker environment variables used to pass command line argum
     * Check the docker: ``docker ps``
     * Check the IP address: ``docker inspect <container ID>``
 
-    Now you can start peers by executing the following command: ``docker run -i --name PEER-1 -e ID=2 -e MASTERIP="172.17.0.2" p2p-sudoku-client`` 
+    Now you can start peers by executing the following command passing the IP address previously found as MASTERIP: ``docker run -i --name PEER-1 -e ID=2 -e MASTERIP="172.17.0.2" p2p-sudoku-client`` 
 
 
 
