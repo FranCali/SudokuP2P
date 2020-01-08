@@ -20,7 +20,6 @@ public class SudokuGameTest {
     String[] nicknames = {"master", "francesco", "michele", "giovanni" };
     final CountDownLatch[] cl = new CountDownLatch[4];
     private HashMap<String, Integer> leaderboard;
-    private Boolean correctLeftGame;
 
     @BeforeAll
     static void startMasterPeer() throws Exception {
@@ -105,10 +104,8 @@ public class SudokuGameTest {
         cl[3] = new CountDownLatch(1);
         //one random peer leaves the game
         int index = random.nextInt(3) + 1;
-        new Thread(new peerLeaveGameRunnable(peerSudoku[index], gameName, nicknames[index])).start();
+        new Thread(new peerLeaveGameRunnable(peerSudoku[1], gameName, nicknames[index])).start();
         cl[3].await();
-
-        assertTrue(correctLeftGame, "game left correctly by peer");
     }
 
     class peerJoinRunnable implements Runnable {
@@ -152,7 +149,6 @@ public class SudokuGameTest {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
         }
         
     }
@@ -171,7 +167,7 @@ public class SudokuGameTest {
         @Override
         public void run() {
             try{
-                correctLeftGame=peerSudoku.leaveGame(gameName, nickname);
+                peerSudoku.leaveGame(gameName, nickname);
             }catch(Exception e){
                 e.printStackTrace();
             }
