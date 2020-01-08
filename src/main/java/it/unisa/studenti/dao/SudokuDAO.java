@@ -22,11 +22,13 @@ public class SudokuDAO {
         try{
             FutureGet futureGet = peer.get(Number160.createHash(gameName)).start();
 			futureGet.awaitUninterruptibly();
+			
 			if(futureGet.isSuccess() && !futureGet.isEmpty()){
 				return false;
 			}
             if(futureGet.isSuccess()) {
-                peer.put(Number160.createHash(gameName)).data(new Data(grid)).start().awaitUninterruptibly();   
+				peer.put(Number160.createHash(gameName)).data(new Data(grid)).start().awaitUninterruptibly();   
+				
                 return true; 
             }
         }catch(Exception e) {
@@ -39,7 +41,8 @@ public class SudokuDAO {
         Grid grid = Grid.emptyGrid();
         try{
             FutureGet futureGet = peer.get(Number160.createHash(gameName)).getLatest().start();
-            futureGet.awaitUninterruptibly();
+			futureGet.awaitUninterruptibly();
+			
             if(futureGet.isSuccess()){
                 if(futureGet.isEmpty()) return null;
                 //grid = (Grid) futureGet.dataMap().values().iterator().next().object();
@@ -62,7 +65,8 @@ public class SudokuDAO {
 			FuturePut fp = peerDHT
 					.put(Number160.createHash(gameName))
                     .data(pair.element1().prepareFlag(), pair.element0())
-                    .start().awaitUninterruptibly();
+					.start().awaitUninterruptibly();
+					
             pair2 = checkVersions(fp.rawResult());
 			// 1 is PutStatus.OK_PREPARED
 			if (pair2 != null && pair2.element1() == 1) {
@@ -72,12 +76,14 @@ public class SudokuDAO {
 			// if not removed, a low ttl will eventually get rid of it
 			peerDHT.remove(Number160.createHash(gameName)).versionKey(pair.element0()).start()
 					.awaitUninterruptibly();
+					
 			Thread.sleep(random.nextInt(500));
 		}
 		if (pair2 != null && pair2.element1() == 1) {
 			peerDHT.put(Number160.createHash(gameName))
 					.versionKey(pair2.element0().versionKey()).putConfirm()
 					.data(new Data()).start().awaitUninterruptibly();
+					
 			return true;
 		} else {
 			System.out
@@ -89,7 +95,8 @@ public class SudokuDAO {
     private static Pair<Number160, Data> getAndUpdateGlobalSudoku(PeerDHT peerDHT, String gameName, int row, int col, int number) throws InterruptedException, ClassNotFoundException, IOException {
 		Pair<Number640, Data> pair = null;
 		for (int i = 0; i < 5; i++) {
-            FutureGet fg = peerDHT.get(Number160.createHash(gameName)).getLatest().start().awaitUninterruptibly();
+			FutureGet fg = peerDHT.get(Number160.createHash(gameName)).getLatest().start().awaitUninterruptibly();
+			
 			
 			if(fg.isSuccess() && fg.isEmpty()){
 				return null;

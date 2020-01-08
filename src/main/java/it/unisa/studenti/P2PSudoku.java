@@ -35,8 +35,10 @@ public class P2PSudoku implements SudokuGame {
         FutureBootstrap fb;
         fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName(masterPeer)).ports(4001).start();
         fb.awaitUninterruptibly();
-        if(fb.isSuccess())
+        
+        if(fb.isSuccess()){
             peer.peer().discover().peerAddress(fb.bootstrapTo().iterator().next()).start().awaitUninterruptibly();
+        }
         else
             throw new Exception("Error connecting to master peer");
         
@@ -83,7 +85,7 @@ public class P2PSudoku implements SudokuGame {
                 isValidSolution = true;
         }
         peer.put(Number160.createHash(gameName + "_solution")).data(new Data(solution)).start().awaitUninterruptibly(); //Save solution in DHT
-
+        
         if(SudokuDAO.initGlobalSudoku(peer, gameName + "_empty", grid)){ //Store the initiated version
             SudokuDAO.initGlobalSudoku(peer, gameName, grid);
             this.localSudoku = grid;
@@ -195,6 +197,7 @@ public class P2PSudoku implements SudokuGame {
         if(PlayerDAO.storePlayer(peer, gameName, nickname, score, true)){//true flag for isDeletion
             System.out.println("Player removed");
             peer.peer().announceShutdown().start().awaitUninterruptibly();
+            
             return true;
         }
         return false;
@@ -204,6 +207,7 @@ public class P2PSudoku implements SudokuGame {
         try{
             FutureGet futureGet = peer.get(Number160.createHash(gameName + "_solution")).getLatest().start();
             futureGet.awaitUninterruptibly();
+            
             if(futureGet.isSuccess()){
                 if(futureGet.isEmpty()) return null;
                 Grid solution = (Grid) futureGet.data().object();
@@ -262,6 +266,7 @@ public class P2PSudoku implements SudokuGame {
         try{
             FutureGet futureGet = peer.get(Number160.createHash(gameName + "_players")).getLatest().start();
             futureGet.awaitUninterruptibly();
+            
             if(futureGet.isSuccess() && !futureGet.isEmpty()){
                 players =  (HashMap<String,Object[]>) futureGet.dataMap().values().iterator().next().object();
             
@@ -269,6 +274,7 @@ public class P2PSudoku implements SudokuGame {
                     if(!this.peer.peer().peerAddress().equals((PeerAddress) player[0])){
                         FutureDirect futureDirect = peer.peer().sendDirect((PeerAddress) player[0]).object(message).start();
                         futureDirect.awaitUninterruptibly();
+                        
                     }
                 }
             }  

@@ -23,6 +23,7 @@ public class PlayerDAO {
         try{
             FutureGet futureGet = peer.get(Number160.createHash(key)).getLatest().start();
             futureGet.awaitUninterruptibly();
+            
             if(futureGet.isSuccess() && !futureGet.isEmpty()){
                 return (HashMap<String, Object[]>) futureGet.dataMap().values().iterator().next().object();
             }
@@ -43,11 +44,13 @@ public class PlayerDAO {
         playerInfo[1] = score;
         players.put(nickname, playerInfo);
         try{
-            FutureGet futureGet = peer.get(Number160.createHash(gameName)).start();
+            FutureGet futureGet = peer.get(Number160.createHash(gameName)).getLatest().start();
             futureGet.awaitUninterruptibly();
             
+    
             if(futureGet.isSuccess() && !futureGet.isEmpty()){
                 peer.put(Number160.createHash(key)).data(new Data(players)).start().awaitUninterruptibly(); 
+                
                 return true;
             }
             else if(futureGet.isSuccess()) {
@@ -70,6 +73,7 @@ public class PlayerDAO {
 					.put(Number160.createHash(gameName + "_players"))
                     .data(pair.element1().prepareFlag(), pair.element0())
                     .start().awaitUninterruptibly();
+            
             pair2 = checkVersions(fp.rawResult());
 			// 1 is PutStatus.OK_PREPARED
 			if (pair2 != null && pair2.element1() == 1) {
@@ -78,13 +82,15 @@ public class PlayerDAO {
 			System.out.println("get delay or fork - put");
 			// if not removed, a low ttl will eventually get rid of it
 			peerDHT.remove(Number160.createHash(gameName + "_players")).versionKey(pair.element0()).start()
-					.awaitUninterruptibly();
+                    .awaitUninterruptibly();
+            
 			Thread.sleep(random.nextInt(500));
 		}
 		if (pair2 != null && pair2.element1() == 1) {
 			peerDHT.put(Number160.createHash(gameName + "_players"))
 					.versionKey(pair2.element0().versionKey()).putConfirm()
                     .data(new Data()).start().awaitUninterruptibly();
+            
             return true;
 		} else {
 			System.out
@@ -99,6 +105,7 @@ public class PlayerDAO {
         Pair<Number640, Data> pair = null;
 		for (int i = 0; i < 5; i++) {
             FutureGet fg = peerDHT.get(Number160.createHash(gameName + "_players")).getLatest().start().awaitUninterruptibly();
+            
             if(fg.isSuccess() && fg.isEmpty())
                 return null;
             // check if all the peers agree on the same latest version, if not
